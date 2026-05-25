@@ -1,0 +1,19 @@
+{
+  "name": "workbee",
+  "version": "1.0.0",
+  "description": "Full-stack gig work management platform",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=backend & npm run dev --workspace=frontend",
+    "setup": "npm install",
+    "lint": "npm run lint --workspaces",
+    "build": "npm run build --workspaces"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
