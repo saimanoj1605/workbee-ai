@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # WorkBee
 
 A full-stack application for gig work management.
@@ -43,3 +44,6 @@ Set up your `.env` file in the `backend` directory with your database connection
 ## License
 
 ISC
+=======
+# workbee-ai
+>>>>>>> b0f3ac63adff9b29f31a37ae59dbfa168dc7208d
