@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const ai_controller_1 = require("../controllers/ai.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const role_middleware_1 = require("../middleware/role.middleware");
+const router = (0, express_1.Router)();
+router.get("/match/:gigId", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("BUSINESS"), ai_controller_1.matchWorkers);
+router.get("/nearby", ai_controller_1.nearbyGigs);
+router.get("/career", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("STUDENT"), ai_controller_1.careerAssistant);
+router.get("/identity", auth_middleware_1.protect, ai_controller_1.workIdentity);
+router.get("/fraud", auth_middleware_1.protect, ai_controller_1.fraudCheck);
+router.get("/fraud/:userId", auth_middleware_1.protect, ai_controller_1.fraudCheck);
+exports.default = router;

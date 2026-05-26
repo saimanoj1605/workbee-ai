@@ -1,17 +1,15 @@
-import express from "express";
-import userRoutes from "./routes/userRoutes.js";
+import "dotenv/config";
+import { createServer } from "http";
 
-const app = express();
-const port = 5000;
+import app from "./app";
+import { env } from "./config/env";
+import { initSocket } from "./config/socket";
+import { registerSocketHandlers } from "./socket/socketHandlers";
 
-app.use(express.json());
+const httpServer = createServer(app);
+const io = initSocket(httpServer);
+registerSocketHandlers(io);
 
-app.get("/", (_req, res) => {
-  res.send("WorkBee API Running");
-});
-
-app.use("/api", userRoutes);
-
-app.listen(port, () => {
-  console.log("Server running on port 5000");
+httpServer.listen(env.PORT, () => {
+  console.log(`WorkBee server running on port ${env.PORT}`);
 });

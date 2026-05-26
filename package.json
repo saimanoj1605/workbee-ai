@@ -9,7 +9,10 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=backend & npm run dev --workspace=frontend",
-    "setup": "npm install",
+    "dev:backend": "npm run dev --workspace=backend",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "setup": "npm install && npm run db:generate --workspace=backend",
+    "db:generate": "npm run db:generate --workspace=backend",
     "lint": "npm run lint --workspaces",
     "build": "npm run build --workspaces"
   },

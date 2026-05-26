@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const gig_controller_1 = require("../controllers/gig.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const role_middleware_1 = require("../middleware/role.middleware");
+const router = (0, express_1.Router)();
+router.get("/", gig_controller_1.getGigs);
+router.post("/", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("BUSINESS"), gig_controller_1.createGig);
+router.post("/:gigId/apply", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("STUDENT"), gig_controller_1.applyToGig);
+router.post("/:gigId/emergency", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("BUSINESS"), gig_controller_1.emergencyDispatch);
+router.patch("/:gigId/applications/:applicationId", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("BUSINESS"), gig_controller_1.updateApplication);
+router.patch("/:gigId/applications/:applicationId/phase", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("STUDENT", "BUSINESS"), gig_controller_1.updateWorkerPhase);
+router.post("/:gigId/applications/:applicationId/verify", auth_middleware_1.protect, (0, role_middleware_1.requireRole)("STUDENT"), gig_controller_1.verifyWork);
+exports.default = router;
