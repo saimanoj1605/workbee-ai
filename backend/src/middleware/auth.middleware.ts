@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import type { UserRole } from "@prisma/client";
 
 import prisma from "../config/db";
 import { env } from "../config/env";
@@ -8,7 +7,8 @@ import { AppError } from "../utils/AppError";
 
 export interface AuthRequest extends Request {
   userId?: string;
-  userRole?: UserRole;
+  userRole?: any;
+  user?: any;
 }
 
 export const protect = async (
