@@ -3,10 +3,6 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import hpp from "hpp";
 
-// xss-clean doesn't have types, so we need to handle it
-// @ts-ignore - xss-clean has no type definitions
-import xss from "xss-clean";
-
 import { env } from "../config/env";
 import prisma from "../config/db";
 
@@ -64,10 +60,56 @@ export const authLimiter = rateLimit({
   skipSuccessfulRequests: true,
 });
 
+function sanitizeValue(value: unknown): unknown {
+  if (typeof value === "string") {
+    return value.replace(/<[^>]*>/g, "");
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizeValue);
+  }
+
+  if (value && typeof value === "object") {
+    for (const key of Object.keys(value as Record<string, unknown>)) {
+      (value as Record<string, unknown>)[key] = sanitizeValue(
+        (value as Record<string, unknown>)[key]
+      );
+    }
+    return value;
+  }
+
+  return value;
+}
+
+function sanitizeQuery(query: unknown): void {
+  if (query && typeof query === "object") {
+    for (const key of Object.keys(query as Record<string, unknown>)) {
+      const field = (query as Record<string, unknown>)[key];
+      if (typeof field === "string" || Array.isArray(field) || typeof field === "object") {
+        (query as Record<string, unknown>)[key] = sanitizeValue(field);
+      }
+    }
+  }
+}
+
 // ============================================
-// XSS CLEAN - Sanitize user input
+// XSS SANITIZER - Sanitize user input without mutating Express 5 getters
 // ============================================
-export const xssClean = xss();
+export const xssClean = (req: Request, _res: Response, next: NextFunction) => {
+  if (req.body) {
+    req.body = sanitizeValue(req.body) as typeof req.body;
+  }
+
+  if (req.params) {
+    req.params = sanitizeValue(req.params) as typeof req.params;
+  }
+
+  if (req.query) {
+    sanitizeQuery(req.query);
+  }
+
+  next();
+};
 
 // ============================================
 // HPP - HTTP Parameter Pollution protection

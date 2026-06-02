@@ -7,9 +7,6 @@ exports.requestTimestamp = exports.ipWhitelist = exports.deviceTracking = export
 const helmet_1 = __importDefault(require("helmet"));
 const express_rate_limit_1 = __importDefault(require("express-rate-limit"));
 const hpp_1 = __importDefault(require("hpp"));
-// xss-clean doesn't have types, so we need to handle it
-// @ts-ignore - xss-clean has no type definitions
-const xss_clean_1 = __importDefault(require("xss-clean"));
 const env_1 = require("../config/env");
 const db_1 = __importDefault(require("../config/db"));
 // ============================================
@@ -63,10 +60,47 @@ exports.authLimiter = (0, express_rate_limit_1.default)({
     },
     skipSuccessfulRequests: true,
 });
+function sanitizeValue(value) {
+    if (typeof value === "string") {
+        return value.replace(/<[^>]*>/g, "");
+    }
+    if (Array.isArray(value)) {
+        return value.map(sanitizeValue);
+    }
+    if (value && typeof value === "object") {
+        for (const key of Object.keys(value)) {
+            value[key] = sanitizeValue(value[key]);
+        }
+        return value;
+    }
+    return value;
+}
+function sanitizeQuery(query) {
+    if (query && typeof query === "object") {
+        for (const key of Object.keys(query)) {
+            const field = query[key];
+            if (typeof field === "string" || Array.isArray(field) || typeof field === "object") {
+                query[key] = sanitizeValue(field);
+            }
+        }
+    }
+}
 // ============================================
-// XSS CLEAN - Sanitize user input
+// XSS SANITIZER - Sanitize user input without mutating Express 5 getters
 // ============================================
-exports.xssClean = (0, xss_clean_1.default)();
+const xssClean = (req, _res, next) => {
+    if (req.body) {
+        req.body = sanitizeValue(req.body);
+    }
+    if (req.params) {
+        req.params = sanitizeValue(req.params);
+    }
+    if (req.query) {
+        sanitizeQuery(req.query);
+    }
+    next();
+};
+exports.xssClean = xssClean;
 // ============================================
 // HPP - HTTP Parameter Pollution protection
 // ============================================
