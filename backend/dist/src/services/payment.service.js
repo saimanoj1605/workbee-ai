@@ -53,7 +53,7 @@ const createPayment = async (userId, body) => {
             amount: data.amount,
             currency: data.currency,
             status: "PENDING",
-            transactionId: paymentIntent.id,
+            razorpayPaymentId: paymentIntent.id,
         },
     });
     return {
@@ -75,7 +75,7 @@ const confirmPaymentHeld = async (userId, paymentIntentId) => {
     }
     const payment = await db_1.default.payment.findFirst({
         where: {
-            transactionId: paymentIntentId,
+            razorpayPaymentId: paymentIntentId,
             businessId: business.id,
         },
         include: {
@@ -115,9 +115,9 @@ const releasePayment = async (userId, body) => {
     if (payment.status !== "HELD") {
         throw new AppError_1.AppError("Only held payments can be released", 400);
     }
-    if (payment.transactionId && env_1.env.STRIPE_SECRET_KEY) {
+    if (payment.razorpayPaymentId && env_1.env.STRIPE_SECRET_KEY) {
         const stripe = getStripe();
-        await stripe.paymentIntents.capture(payment.transactionId);
+        await stripe.paymentIntents.capture(payment.razorpayPaymentId);
     }
     return db_1.default.payment.update({
         where: { id: paymentId },

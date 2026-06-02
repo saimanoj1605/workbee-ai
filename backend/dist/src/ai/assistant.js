@@ -7,9 +7,10 @@ exports.getCareerAdvice = exports.buildCareerPrompt = void 0;
 const openai_1 = __importDefault(require("openai"));
 const env_1 = require("../config/env");
 const getClient = () => {
-    if (!env_1.env.OPENAI_API_KEY)
+    const apiKey = env_1.env.OPENAI_API_KEY || env_1.env.GEMINI_API_KEY;
+    if (!apiKey)
         return null;
-    return new openai_1.default({ apiKey: env_1.env.OPENAI_API_KEY });
+    return new openai_1.default({ apiKey });
 };
 const buildCareerPrompt = (ctx) => {
     return `You are WorkBee AI Career Assistant — a mentor for student gig workers.

@@ -102,7 +102,7 @@ CREATE TABLE "Payment" (
     "amount" DOUBLE PRECISION NOT NULL,
     "currency" TEXT NOT NULL DEFAULT 'USD',
     "status" "PaymentStatus" NOT NULL DEFAULT 'PENDING',
-    "transactionId" TEXT,
+    "razorpayPaymentId" TEXT,
     "processedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -203,7 +203,7 @@ CREATE UNIQUE INDEX "Payment_businessId_key" ON "Payment"("businessId");
 CREATE UNIQUE INDEX "Payment_applicationId_key" ON "Payment"("applicationId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Payment_transactionId_key" ON "Payment"("transactionId");
+CREATE UNIQUE INDEX "Payment_razorpayPaymentId_key" ON "Payment"("razorpayPaymentId");
 
 -- CreateIndex
 CREATE INDEX "Notification_userId_idx" ON "Notification"("userId");

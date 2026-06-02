@@ -32,6 +32,7 @@ const envSchema = z.object({
 
   // AI Services
   OPENAI_API_KEY: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
   OPENAI_MODEL: z.string().default("gpt-4o-mini"),
 
   // Clerk (Optional Web Auth)

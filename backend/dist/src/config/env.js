@@ -28,6 +28,7 @@ const envSchema = zod_1.z.object({
     STRIPE_SECRET_KEY: zod_1.z.string().optional(),
     // AI Services
     OPENAI_API_KEY: zod_1.z.string().optional(),
+    GEMINI_API_KEY: zod_1.z.string().optional(),
     OPENAI_MODEL: zod_1.z.string().default("gpt-4o-mini"),
     // Clerk (Optional Web Auth)
     CLERK_SECRET_KEY: zod_1.z.string().optional(),

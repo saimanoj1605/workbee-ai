@@ -49,7 +49,7 @@ export const createRazorpayOrder = async (
       amount: amountInr,
       currency: "INR",
       status: "PENDING",
-      transactionId: order.id,
+      razorpayPaymentId: order.id,
     },
   });
 
@@ -88,7 +88,7 @@ export const verifyRazorpayPayment = async (
 
   const payment = await prisma.payment.findFirst({
     where: {
-      transactionId: body.razorpay_order_id,
+      razorpayPaymentId: body.razorpay_order_id,
       businessId: business.id,
     },
     include: {
@@ -101,7 +101,7 @@ export const verifyRazorpayPayment = async (
     where: { id: payment.id },
     data: {
       status: "HELD",
-      transactionId: body.razorpay_payment_id,
+     razorpayPaymentId: body.razorpay_payment_id,
       processedAt: new Date(),
     },
   });

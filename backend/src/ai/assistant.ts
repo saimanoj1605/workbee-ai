@@ -11,8 +11,9 @@ export type CareerContext = {
 };
 
 const getClient = () => {
-  if (!env.OPENAI_API_KEY) return null;
-  return new OpenAI({ apiKey: env.OPENAI_API_KEY });
+  const apiKey = env.OPENAI_API_KEY || env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
 };
 
 export const buildCareerPrompt = (ctx: CareerContext): string => {

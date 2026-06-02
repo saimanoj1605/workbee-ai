@@ -143,255 +143,338 @@ enum AttendanceStatus {
 }
 
 model User {
-  id              String            @id @default(uuid())
-  clerkId         String?           @unique
-  fullName        String
-  email           String            @unique
-  passwordHash    String?
-  role            UserRole
-  isEmailVerified Boolean           @default(false)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id           String   @id @default(uuid())
+  clerkId      String?  @unique
+  fullName     String
+  email        String   @unique
+  passwordHash String?
+  role         UserRole
 
-  student                    Student?
-  business                   Business?
-  reputation                 ReputationScore?
-  wallet                     Wallet?
-  notifications              Notification[]
-  reviewsAuthored            Review[]              @relation("ReviewAuthor")
-  reviewsReceived            Review[]              @relation("ReviewReceiver")
-  messagesSent               Message[]             @relation("MessageSender")
-  messagesReceived           Message[]             @relation("MessageReceiver")
+  isEmailVerified Boolean @default(false)
 
-  // Security & Verification relations
-  reportedReports            Report[]              @relation("ReportReporter")
-  targetReports              Report[]              @relation("ReportTargetUser")
-  assignedReports            Report[]              @relation("ReportAssignedAdmin")
-  deviceFingerprints         DeviceFingerprint[]   @relation("DeviceFingerprintUser")
-  securityLogs               SecurityLog[]         @relation("SecurityLogUser")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student  Student?
+  business Business?
+
+  reputation ReputationScore?
+  wallet     Wallet?
+
+  notifications Notification[]
+
+  reviewsAuthored Review[] @relation("ReviewAuthor")
+  reviewsReceived Review[] @relation("ReviewReceiver")
+
+  messagesSent     Message[] @relation("MessageSender")
+  messagesReceived Message[] @relation("MessageReceiver")
+
+  reportedReports Report[] @relation("ReportReporter")
+  targetReports   Report[] @relation("ReportTargetUser")
+  assignedReports Report[] @relation("ReportAssignedAdmin")
+
+  deviceFingerprints DeviceFingerprint[] @relation("DeviceFingerprintUser")
+  securityLogs       SecurityLog[]       @relation("SecurityLogUser")
 
   @@index([role])
 }
 
 model Student {
-  id              String            @id @default(uuid())
-  user            User              @relation(fields: [userId], references: [id])
-  userId          String            @unique
-  headline        String?
-  bio             String?
-  skills          String[]          @default([])
-  education       String?
-  location        String?
-  portfolioUrl    String?
-  availability    String?
-  latitude        Float?
-  longitude       Float?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id String @id @default(uuid())
 
-  applications      Application[]
-  aiMatches         AIMatch[]
-  verification      StudentVerification?
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  headline String?
+  bio      String?
+
+  skills String[] @default([])
+
+  education String?
+  location  String?
+
+  portfolioUrl String?
+  availability String?
+
+  latitude  Float?
+  longitude Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+  aiMatches    AIMatch[]
+
+  verification StudentVerification?
 
   @@index([location])
 }
 
 model Business {
-  id              String            @id @default(uuid())
-  user            User              @relation(fields: [userId], references: [id])
-  userId          String            @unique
-  businessName    String
-  about           String?
-  website         String?
-  industry        String?
-  location        String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id String @id @default(uuid())
 
-  gigs            Gig[]
-  payments        Payment[]
-  verification    BusinessVerification?
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  businessName String
+
+  about    String?
+  website  String?
+  industry String?
+  location String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gigs     Gig[]
+  payments Payment[]
+
+  verification BusinessVerification?
 
   @@index([industry])
 }
 
 model Gig {
-  id              String            @id @default(uuid())
-  business        Business          @relation(fields: [businessId], references: [id])
-  businessId      String
-  title           String
-  description     String
-  requirements    String?
-  skills          String[]          @default([])
-  location        String?
-  latitude        Float?
-  longitude       Float?
-  salaryRange     String?
-  status          GigStatus         @default(OPEN)
-  publishedAt     DateTime?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id String @id @default(uuid())
 
-  applications    Application[]
-  aiMatches       AIMatch[]
-  reviews         Review[]
-  messages        Message[]         @relation("MessageGig")
+  business   Business @relation(fields: [businessId], references: [id])
+  businessId String
+
+  title       String
+  description String
+
+  requirements String?
+
+  skills String[] @default([])
+
+  location  String?
+  latitude  Float?
+  longitude Float?
+
+  salaryRange String?
+
+  status GigStatus @default(OPEN)
+
+  publishedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  applications Application[]
+  aiMatches    AIMatch[]
+  reviews      Review[]
+
+  messages Message[] @relation("MessageGig")
+
+  reports Report[]
 
   @@index([businessId])
   @@index([status])
 }
 
 model Application {
-  id                  String            @id @default(uuid())
-  gig                 Gig               @relation(fields: [gigId], references: [id])
-  gigId               String
-  student             Student           @relation(fields: [studentId], references: [id])
-  studentId           String
-  status              ApplicationStatus @default(APPLIED)
-  coverLetter         String?
-  submittedAt         DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
-  matchedScore        Float?
+  id String @id @default(uuid())
 
-  payment             Payment?
+  gig   Gig    @relation(fields: [gigId], references: [id])
+  gigId String
 
-  // Real-time worker lifecycle
-  workerPhase         WorkerPhase       @default(NOT_STARTED)
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
 
-  // Security & Verification
-  qrAttendance        QRAttendance?
-  workProof           WorkProof?
+  status ApplicationStatus @default(APPLIED)
+
+  coverLetter String?
+
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  matchedScore Float?
+
+  payment Payment?
+
+  workerPhase WorkerPhase @default(NOT_STARTED)
+
+  qrAttendance QRAttendance?
+  workProof    WorkProof?
+
+  messages Message[] @relation("MessageApplication")
 
   @@index([gigId])
   @@index([studentId])
   @@index([status])
-
-  messages            Message[]         @relation("MessageApplication")
 }
 
 model Review {
-  id              String            @id @default(uuid())
-  author          User              @relation("ReviewAuthor", fields: [authorId], references: [id])
-  authorId        String
-  receiver        User              @relation("ReviewReceiver", fields: [receiverId], references: [id])
-  receiverId      String
-  gig             Gig?              @relation(fields: [gigId], references: [id])
-  gigId           String?
-  rating          Int
-  comment         String?
-  createdAt       DateTime          @default(now())
+  id String @id @default(uuid())
+
+  author   User   @relation("ReviewAuthor", fields: [authorId], references: [id])
+  authorId String
+
+  receiver   User   @relation("ReviewReceiver", fields: [receiverId], references: [id])
+  receiverId String
+
+  gig   Gig?    @relation(fields: [gigId], references: [id])
+  gigId String?
+
+  rating  Int
+  comment String?
+
+  createdAt DateTime @default(now())
 }
 
 model Notification {
-  id              String            @id @default(uuid())
-  user            User              @relation(fields: [userId], references: [id])
-  userId          String
-  title           String
-  message         String
-  type            NotificationType  @default(SYSTEM)
-  isRead          Boolean           @default(false)
-  metadata        Json?
-  actionUrl       String?
-  createdAt       DateTime          @default(now())
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  title   String
+  message String
+
+  type NotificationType @default(SYSTEM)
+
+  isRead Boolean @default(false)
+
+  metadata  Json?
+  actionUrl String?
+
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([type])
 }
 
 model ReputationScore {
-  id                  String            @id @default(uuid())
-  user                User              @relation(fields: [userId], references: [id])
-  userId              String            @unique
-  score               Float             @default(0)
-  reliabilityScore    Float             @default(0)
-  workIdentityScore   Float             @default(0)
-  totalCompleted      Int               @default(0)
-  punctualityCount    Int               @default(0)
-  positiveReviews     Int               @default(0)
-  cancellations       Int               @default(0)
-  noShows             Int               @default(0)
-  fakeReports         Int               @default(0)
-  fraudStatus         FraudRisk         @default(SAFE)
-  level               ReputationLevel   @default(NEW)
-  reviewCount         Int               @default(0)
-  updatedAt           DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  score Float @default(0)
+
+  reliabilityScore  Float @default(0)
+  workIdentityScore Float @default(0)
+
+  totalCompleted Int @default(0)
+
+  punctualityCount Int @default(0)
+
+  positiveReviews Int @default(0)
+
+  cancellations Int @default(0)
+  noShows       Int @default(0)
+
+  fakeReports Int @default(0)
+
+  fraudStatus FraudRisk @default(SAFE)
+
+  level ReputationLevel @default(NEW)
+
+  reviewCount Int @default(0)
+
+  updatedAt DateTime @updatedAt
 }
 
 model AIMatch {
-  id              String            @id @default(uuid())
-  student         Student           @relation(fields: [studentId], references: [id])
-  studentId       String
-  gig             Gig               @relation(fields: [gigId], references: [id])
-  gigId           String
-  score           Float
-  reason          String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId String
+
+  gig   Gig    @relation(fields: [gigId], references: [id])
+  gigId String
+
+  score  Float
+  reason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([studentId, gigId])
 }
 
 model Message {
-  id                  String            @id @default(uuid())
-  senderId            String
-  receiverId          String
-  sender              User              @relation("MessageSender", fields: [senderId], references: [id])
-  receiver            User              @relation("MessageReceiver", fields: [receiverId], references: [id])
-  content             String
-  imageUrl            String?
-  gigId               String?
-  gig                 Gig?              @relation("MessageGig", fields: [gigId], references: [id])
-  applicationId       String?
-  application         Application?      @relation("MessageApplication", fields: [applicationId], references: [id])
-  createdAt           DateTime          @default(now())
+  id String @id @default(uuid())
+
+  senderId   String
+  receiverId String
+
+  sender   User @relation("MessageSender", fields: [senderId], references: [id])
+  receiver User @relation("MessageReceiver", fields: [receiverId], references: [id])
+
+  content String
+
+  imageUrl String?
+
+  gigId String?
+  gig   Gig?    @relation("MessageGig", fields: [gigId], references: [id])
+
+  applicationId String?
+  application   Application? @relation("MessageApplication", fields: [applicationId], references: [id])
+
+  createdAt DateTime @default(now())
 
   @@index([senderId])
   @@index([receiverId])
   @@index([gigId])
 }
 
-// ============================================
-// PAYMENT SYSTEM MODELS
-// ============================================
-
 model Wallet {
-  id              String          @id @default(uuid())
-  userId          String          @unique
-  user            User            @relation(fields: [userId], references: [id])
-  balance         Float           @default(0)
-  pendingBalance  Float           @default(0)
-  status          WalletStatus    @default(ACTIVE)
-  kycVerified     Boolean         @default(false)
-  kycData         Json?
-  lastWithdrawnAt DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id String @id @default(uuid())
 
-  transactions    Transaction[]
-  payouts         Payout[]
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  balance        Float @default(0)
+  pendingBalance Float @default(0)
+
+  status WalletStatus @default(ACTIVE)
+
+  kycVerified Boolean @default(false)
+
+  kycData Json?
+
+  lastWithdrawnAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  transactions Transaction[]
+  payouts      Payout[]
 
   @@index([userId])
   @@index([status])
 }
 
 model Transaction {
-  id              String            @id @default(uuid())
-  walletId        String
-  wallet          Wallet            @relation(fields: [walletId], references: [id])
-  paymentId       String?
-  payment         Payment?          @relation(fields: [paymentId], references: [id])
-  type            TransactionType
-  amount          Float
-  currency        String            @default("INR")
-  status          TransactionStatus @default(PENDING)
-  referenceId     String?           @unique
-  razorpayId      String?
-  description     String?
-  metadata        Json?
-  balanceBefore   Float?
-  balanceAfter    Float?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  type TransactionType
+
+  amount Float
+
+  currency String @default("INR")
+
+  status TransactionStatus @default(PENDING)
+
+  referenceId String? @unique
+  razorpayId  String?
+
+  description String?
+
+  metadata Json?
+
+  balanceBefore Float?
+  balanceAfter  Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([walletId])
   @@index([paymentId])
@@ -401,30 +484,42 @@ model Transaction {
 }
 
 model Payment {
-  id                  String          @id @default(uuid())
-  businessId          String?
-  business            Business?       @relation(fields: [businessId], references: [id])
-  applicationId       String?         @unique
-  application         Application?    @relation(fields: [applicationId], references: [id])
-  amount              Float
-  currency            String          @default("INR")
-  status              PaymentStatus   @default(PENDING)
-  razorpayOrderId     String?
-  razorpayPaymentId   String?
-  razorpaySignature   String?
-  commissionAmount    Float           @default(0)
-  netAmount           Float           @default(0)
-  commissionPercent   Float           @default(10)
-  description         String?
-  metadata            Json?
-  processedAt         DateTime?
-  heldAt              DateTime?
-  releasedAt          DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id String @id @default(uuid())
 
-  refund              Refund?
-  transactions        Transaction[]
+  businessId String?
+  business   Business? @relation(fields: [businessId], references: [id])
+
+  applicationId String?      @unique
+  application   Application? @relation(fields: [applicationId], references: [id])
+
+  amount Float
+
+  currency String @default("INR")
+
+  status PaymentStatus @default(PENDING)
+
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  commissionAmount Float @default(0)
+  netAmount        Float @default(0)
+
+  commissionPercent Float @default(10)
+
+  description String?
+
+  metadata Json?
+
+  processedAt DateTime?
+  heldAt      DateTime?
+  releasedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  refund       Refund?
+  transactions Transaction[]
 
   @@index([businessId])
   @@index([applicationId])
@@ -434,43 +529,63 @@ model Payment {
 }
 
 model Refund {
-  id                  String          @id @default(uuid())
-  paymentId           String          @unique
-  payment             Payment         @relation(fields: [paymentId], references: [id])
-  amount              Float
-  reason              String
-  status              RefundStatus    @default(PENDING)
-  razorpayRefundId    String?
-  initiatedBy         String
-  processedBy         String?
-  metadata            Json?
-  processedAt         DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id String @id @default(uuid())
+
+  paymentId String  @unique
+  payment   Payment @relation(fields: [paymentId], references: [id])
+
+  amount Float
+
+  reason String
+
+  status RefundStatus @default(PENDING)
+
+  razorpayRefundId String?
+
+  initiatedBy String
+  processedBy String?
+
+  metadata Json?
+
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([paymentId])
   @@index([status])
 }
 
 model Payout {
-  id                  String          @id @default(uuid())
-  walletId            String
-  wallet              Wallet          @relation(fields: [walletId], references: [id])
-  userId              String
-  amount              Float
-  currency            String          @default("INR")
-  status              PayoutStatus    @default(PENDING)
-  payoutMethod        String
-  accountNumber       String?
-  ifscCode            String?
-  upiId               String?
-  razorpayPayoutId    String?
-  razorpayOrderId     String?
-  description         String?
-  failureReason       String?
-  processedAt         DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id String @id @default(uuid())
+
+  walletId String
+  wallet   Wallet @relation(fields: [walletId], references: [id])
+
+  userId String
+
+  amount Float
+
+  currency String @default("INR")
+
+  status PayoutStatus @default(PENDING)
+
+  payoutMethod String
+
+  accountNumber String?
+  ifscCode      String?
+  upiId         String?
+
+  razorpayPayoutId String?
+  razorpayOrderId  String?
+
+  description   String?
+  failureReason String?
+
+  processedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([walletId])
   @@index([userId])
@@ -478,136 +593,192 @@ model Payout {
   @@index([razorpayPayoutId])
 }
 
-// ============================================
-// SECURITY & VERIFICATION MODELS (Phase 10)
-// ============================================
-
 model StudentVerification {
-  id                String            @id @default(uuid())
-  studentId         String            @unique
-  student           Student           @relation(fields: [studentId], references: [id])
-  collegeEmail      String?
-  collegeName       String?
-  studentIdCardUrl  String?
-  aadhaarNumber     String?
-  status            VerificationStatus @default(PENDING)
-  verifiedAt        DateTime?
-  verifiedBy        String?
-  rejectionReason   String?
-  metadata          Json?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  studentId String  @unique
+  student   Student @relation(fields: [studentId], references: [id])
+
+  collegeEmail String?
+  collegeName  String?
+
+  studentIdCardUrl String?
+
+  aadhaarNumber String?
+
+  status VerificationStatus @default(PENDING)
+
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  rejectionReason String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([studentId])
   @@index([status])
 }
 
 model BusinessVerification {
-  id                String            @id @default(uuid())
-  businessId        String            @unique
-  business          Business          @relation(fields: [businessId], references: [id])
-  gstNumber         String?
-  panNumber         String?
-  businessLicense   String?
+  id String @id @default(uuid())
+
+  businessId String   @unique
+  business   Business @relation(fields: [businessId], references: [id])
+
+  gstNumber String?
+  panNumber String?
+
+  businessLicense String?
+
   gstCertificateUrl String?
   panCardUrl        String?
   licenseUrl        String?
-  status            VerificationStatus @default(PENDING)
-  verifiedAt        DateTime?
-  verifiedBy        String?
-  rejectionReason   String?
-  metadata          Json?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+
+  status VerificationStatus @default(PENDING)
+
+  verifiedAt DateTime?
+  verifiedBy String?
+
+  rejectionReason String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([businessId])
   @@index([status])
 }
 
 model Report {
-  id                    String            @id @default(uuid())
-  reporterId            String
-  reporter              User              @relation(fields: [reporterId], references: [id], name: "ReportReporter")
-  targetUserId          String?
-  targetUser            User?             @relation(fields: [targetUserId], references: [id], name: "ReportTargetUser")
-  type                  ReportType
-  reason                String
-  description           String?
-  evidence              Json?
-  status                ReportStatus      @default(PENDING)
-  assignedAdminId       String?
-  assignedAdmin         User?             @relation(fields: [assignedAdminId], references: [id], name: "ReportAssignedAdmin")
-  resolutionNotes       String?
-  resolvedAt            DateTime?
-  resolvedBy            String?
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  reporterId String
+  reporter   User   @relation("ReportReporter", fields: [reporterId], references: [id])
+
+  targetUserId String?
+  targetUser   User?   @relation("ReportTargetUser", fields: [targetUserId], references: [id])
+
+  targetGigId String?
+  targetGig   Gig?    @relation(fields: [targetGigId], references: [id])
+
+  type ReportType
+
+  reason      String
+  description String?
+
+  evidence Json?
+
+  status ReportStatus @default(PENDING)
+
+  assignedAdminId String?
+  assignedAdmin   User?   @relation("ReportAssignedAdmin", fields: [assignedAdminId], references: [id])
+
+  resolutionNotes String?
+
+  resolvedAt DateTime?
+  resolvedBy String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([reporterId])
   @@index([targetUserId])
+  @@index([targetGigId])
   @@index([status])
   @@index([createdAt])
 }
 
 model QRAttendance {
-  id                String            @id @default(uuid())
-  applicationId     String            @unique
-  application       Application       @relation(fields: [applicationId], references: [id])
-  qrCodeData        String
-  checkInLatitude   Float?
-  checkInLongitude  Float?
+  id String @id @default(uuid())
+
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id])
+
+  qrCodeData String
+
+  checkInLatitude  Float?
+  checkInLongitude Float?
+
   checkOutLatitude  Float?
   checkOutLongitude Float?
-  checkInTime       DateTime?
-  checkOutTime      DateTime?
-  status            AttendanceStatus  @default(CHECKED_IN)
-  distanceFromGig   Float?
-  isWithinRadius    Boolean?
-  radiusMeters      Int               @default(100)
-  verifiedBy        String?
-  verifiedAt        DateTime?
-  metadata          Json?
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+
+  status AttendanceStatus @default(CHECKED_IN)
+
+  distanceFromGig Float?
+  isWithinRadius  Boolean?
+
+  radiusMeters Int @default(100)
+
+  verifiedBy String?
+  verifiedAt DateTime?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([applicationId])
   @@index([status])
 }
 
 model WorkProof {
-  id                  String            @id @default(uuid())
-  applicationId       String            @unique
-  application         Application       @relation(fields: [applicationId], references: [id])
-  beforeImageUrl      String?
-  afterImageUrl       String?
-  selfieUrl           String?
-  completionProofUrl  String?
-  description         String?
-  status              VerificationStatus @default(PENDING)
-  verifiedBy          String?
-  verifiedAt          DateTime?
-  rejectionReason     String?
-  metadata            Json?
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  applicationId String      @unique
+  application   Application @relation(fields: [applicationId], references: [id])
+
+  beforeImageUrl String?
+  afterImageUrl  String?
+
+  selfieUrl          String?
+  completionProofUrl String?
+
+  description String?
+
+  status VerificationStatus @default(PENDING)
+
+  verifiedBy String?
+  verifiedAt DateTime?
+
+  rejectionReason String?
+
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([applicationId])
   @@index([status])
 }
 
 model DeviceFingerprint {
-  id                String            @id @default(uuid())
-  userId            String
-  user              User              @relation(fields: [userId], references: [id], name: "DeviceFingerprintUser")
-  fingerprint       String
-  deviceInfo        Json?
-  ipAddress         String?
-  userAgent         String?
-  lastSeenAt        DateTime          @default(now())
-  isTrusted         Boolean           @default(false)
-  isBlocked         Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id String @id @default(uuid())
+
+  userId String
+
+  user User @relation("DeviceFingerprintUser", fields: [userId], references: [id])
+
+  fingerprint String
+
+  deviceInfo Json?
+
+  ipAddress String?
+  userAgent String?
+
+  lastSeenAt DateTime @default(now())
+
+  isTrusted Boolean @default(false)
+  isBlocked Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([userId, fingerprint])
   @@index([userId])
@@ -616,18 +787,27 @@ model DeviceFingerprint {
 }
 
 model SecurityLog {
-  id                String            @id @default(uuid())
-  userId            String?
-  user              User?             @relation(fields: [userId], references: [id], name: "SecurityLogUser")
-  action            String
-  resourceType      String?
-  resourceId        String?
-  ipAddress         String?
-  userAgent         String?
-  metadata          Json?
-  riskScore         Float?
-  isFlagged         Boolean           @default(false)
-  createdAt         DateTime          @default(now())
+  id String @id @default(uuid())
+
+  userId String?
+
+  user User? @relation("SecurityLogUser", fields: [userId], references: [id])
+
+  action String
+
+  resourceType String?
+  resourceId   String?
+
+  ipAddress String?
+  userAgent String?
+
+  metadata Json?
+
+  riskScore Float?
+
+  isFlagged Boolean @default(false)
+
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([action])

@@ -46,7 +46,7 @@ const createRazorpayOrder = async (userId, applicationId, amountInr) => {
             amount: amountInr,
             currency: "INR",
             status: "PENDING",
-            transactionId: order.id,
+            razorpayPaymentId: order.id,
         },
     });
     return {
@@ -74,7 +74,7 @@ const verifyRazorpayPayment = async (userId, body) => {
         throw new AppError_1.AppError("Business profile required", 403);
     const payment = await db_1.default.payment.findFirst({
         where: {
-            transactionId: body.razorpay_order_id,
+            razorpayPaymentId: body.razorpay_order_id,
             businessId: business.id,
         },
         include: {
@@ -87,7 +87,7 @@ const verifyRazorpayPayment = async (userId, body) => {
         where: { id: payment.id },
         data: {
             status: "HELD",
-            transactionId: body.razorpay_payment_id,
+            razorpayPaymentId: body.razorpay_payment_id,
             processedAt: new Date(),
         },
     });

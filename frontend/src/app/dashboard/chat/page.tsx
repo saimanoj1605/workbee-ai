@@ -1,8 +1,8 @@
 "use client";
 
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { io } from "socket.io-client";
-import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
@@ -18,7 +18,7 @@ type ChatMessage = {
   createdAt: string;
 };
 
-export default function ChatPage() {
+function ChatPageContent() {
   const searchParams = useSearchParams();
   const peerId = searchParams.get("peerId") ?? "";
 
@@ -150,6 +150,22 @@ export default function ChatPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen pt-24 pb-10 px-4 md:px-6 bg-background text-foreground">
+          <div className="max-w-3xl mx-auto glass rounded-2xl p-6">
+            <p className="text-base text-muted-foreground">Loading chat...</p>
+          </div>
+        </div>
+      }
+    >
+      <ChatPageContent />
+    </Suspense>
   );
 }
 

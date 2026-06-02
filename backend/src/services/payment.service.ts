@@ -60,7 +60,7 @@ export const createPayment = async (userId: string, body: unknown) => {
       amount: data.amount,
       currency: data.currency,
       status: "PENDING",
-      transactionId: paymentIntent.id,
+      razorpayPaymentId: paymentIntent.id,
     },
   });
 
@@ -91,7 +91,7 @@ export const confirmPaymentHeld = async (
 
   const payment = await prisma.payment.findFirst({
     where: {
-      transactionId: paymentIntentId,
+      razorpayPaymentId: paymentIntentId,
       businessId: business.id,
     },
     include: {
@@ -140,9 +140,9 @@ export const releasePayment = async (userId: string, body: unknown) => {
     throw new AppError("Only held payments can be released", 400);
   }
 
-  if ((payment as any).transactionId && env.STRIPE_SECRET_KEY) {
+  if ((payment as any).razorpayPaymentId && env.STRIPE_SECRET_KEY) {
     const stripe = getStripe();
-    await stripe.paymentIntents.capture((payment as any).transactionId);
+    await stripe.paymentIntents.capture((payment as any).razorpayPaymentId);
   }
 
   return prisma.payment.update({
