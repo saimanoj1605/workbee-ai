@@ -13,8 +13,10 @@ const ai_routes_1 = __importDefault(require("./routes/ai.routes"));
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const clerk_routes_1 = __importDefault(require("./routes/clerk.routes"));
 const chat_routes_1 = __importDefault(require("./routes/chat.routes"));
+const dashboard_routes_1 = __importDefault(require("./routes/dashboard.routes"));
 const gig_routes_1 = __importDefault(require("./routes/gig.routes"));
 const payment_routes_1 = __importDefault(require("./routes/payment.routes"));
+const profile_routes_1 = __importDefault(require("./routes/profile.routes"));
 const razorpay_routes_1 = __importDefault(require("./routes/razorpay.routes"));
 const report_routes_1 = __importDefault(require("./routes/report.routes"));
 const review_routes_1 = __importDefault(require("./routes/review.routes"));
@@ -76,6 +78,8 @@ app.get("/api/health", (_req, res) => {
 // ============================================
 app.use("/api/auth", auth_routes_1.default);
 app.use("/api/auth/clerk", clerk_routes_1.default);
+app.use("/api/dashboard", dashboard_routes_1.default);
+app.use("/api/profile", profile_routes_1.default);
 app.use("/api/gigs", gig_routes_1.default);
 app.use("/api/chat", chat_routes_1.default);
 app.use("/api/payments", payment_routes_1.default);

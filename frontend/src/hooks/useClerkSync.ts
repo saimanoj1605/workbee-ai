@@ -29,7 +29,7 @@ export function useClerkSync(role: "STUDENT" | "BUSINESS" = "STUDENT") {
         const result = await api<{
           token: string;
           user: { id: string; role: string };
-        }>("/api/clerk/sync", {
+        }>("/api/auth/clerk/sync", {
           method: "POST",
           body: {
             clerkId: user.id,

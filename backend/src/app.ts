@@ -17,8 +17,10 @@ import aiRoutes from "./routes/ai.routes";
 import authRoutes from "./routes/auth.routes";
 import clerkRoutes from "./routes/clerk.routes";
 import chatRoutes from "./routes/chat.routes";
+import dashboardRoutes from "./routes/dashboard.routes";
 import gigRoutes from "./routes/gig.routes";
 import paymentRoutes from "./routes/payment.routes";
+import profileRoutes from "./routes/profile.routes";
 import razorpayRoutes from "./routes/razorpay.routes";
 import reportRoutes from "./routes/report.routes";
 import reviewRoutes from "./routes/review.routes";
@@ -94,6 +96,8 @@ app.get("/api/health", (_req, res) => {
 // ============================================
 app.use("/api/auth", authRoutes);
 app.use("/api/auth/clerk", clerkRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/profile", profileRoutes);
 app.use("/api/gigs", gigRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/payments", paymentRoutes);
